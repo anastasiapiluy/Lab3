@@ -380,11 +380,13 @@ public class Test {
                 sc.nextLine();
                 Version newVersion = git.getVersion(ind);
                 System.out.println("Версия " + ind + ":");
-                for (String s : newVersion.getter()) System.out.println(s);
+                for (String s : newVersion.getter())
+                    System.out.println(s);
 
             } else if (choice == 6) {
                 System.out.println("----- Текущая версия -----");
-                for (String s : git.getCurrentVersion()) System.out.println(s);
+                for (String s : git.getCurrentVersion())
+                    System.out.println(s);
 
             } else if (choice == 7) {
                 System.out.println("----- Все сохраненные Вами версии -----");
@@ -408,15 +410,17 @@ public class Test {
                 sc.nextLine();
                 Version differentVersion = git.getVersion(diffIndex);
                 System.out.println("----- Различия в строках -----");
-                for (String s : PoemGit.difference(git.getVersion(0), differentVersion)) System.out.println(s);
+                for (String s : PoemGit.difference(git.getVersion(0), differentVersion))
+                    System.out.println(s);
 
             } else if (choice == 10) {
                 System.out.println("Введите индекс версии для поиска общих строк с текущей:");
-                int comIndex = sc.nextInt();
+                int commonInd = sc.nextInt();
                 sc.nextLine();
-                Version common = git.getVersion(comIndex);
+                Version common = git.getVersion(commonInd);
                 System.out.println("----- Общие строки -----");
-                for (String s : PoemGit.commonStr(git.getVersion(0), common)) System.out.println(s);
+                for (String s : PoemGit.commonStr(git.getVersion(0), common))
+                    System.out.println(s);
 
             } else if (choice == 11) {
                 System.out.println("Введите индекс версии для удаления:");
