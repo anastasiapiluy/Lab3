@@ -126,19 +126,8 @@ public class PoemGit {
         this.allVersions = new Version[0];
     }
 
-    public PoemGit creating(String[] currentVersion, Version[] allVersions) {
-        PoemGit newGit = new PoemGit(poemName, author, max);
-            newGit.currentVersion = currentVersion;
-            newGit.allVersions = allVersions;
-            return newGit;
-    }
-
     public String[] getCurrentVersion() {
-        String[] newGit = new String[currentVersion.length];
-        for (int i = 0; i < currentVersion.length; i++) {
-            newGit[i] = currentVersion[i];
-        }
-        return newGit;
+        return this.currentVersion;
     }
 
     public Version[] getAllVersions() {
@@ -149,16 +138,16 @@ public class PoemGit {
         return newGit;
     }
 
-    public PoemGit addStr(String str) {
+    public void addStr(String str) {
         String[] newStr = new String[currentVersion.length + 1];
         for (int i = 0; i < currentVersion.length; i++) {
             newStr[i]=currentVersion[i];
         }
         newStr[currentVersion.length] = str;
-        return creating(newStr, allVersions);
+        this.currentVersion = newStr;
     }
 
-    public PoemGit deleteStr(int ind){
+    public void deleteStr(int ind){
         String[] newStr = new String[currentVersion.length-1];
         int k=0;
         for (int i = 0; i < currentVersion.length; i++) {
@@ -167,10 +156,10 @@ public class PoemGit {
                 k++;
             }
         }
-        return creating(newStr, allVersions);
+        this.currentVersion=newStr;
     }
 
-    public PoemGit insertStr(int ind, String str){
+    public void insertStr(int ind, String str){
         if (ind < 0) ind = 0;
         if (ind > currentVersion.length) ind = currentVersion.length;
         String[] newStr = new String[currentVersion.length + 1];
@@ -181,10 +170,10 @@ public class PoemGit {
         for (int i = ind; i < currentVersion.length; i++) {
             newStr[i + 1] = currentVersion[i];
         }
-        return creating(newStr, allVersions);
+        this.currentVersion=newStr;
     }
 
-    public PoemGit saving() {
+    public void saving() {
         Version[] newVersions;
         if (allVersions.length>=max){
             newVersions = new Version[max];
@@ -196,7 +185,7 @@ public class PoemGit {
         for (int i = 1; i < newVersions.length; i++) {
             newVersions[i]=allVersions[i-1];
         }
-        return creating(currentVersion,newVersions);
+        this.allVersions = newVersions;
     }
 
     public Version getVersion(int ind) {
@@ -208,29 +197,32 @@ public class PoemGit {
         }
     }
 
-    public PoemGit deleteVersion (int ind){
+    public void deleteVersion (int ind){
         Version[] newVersions = new Version[allVersions.length-1];
         int k=0;
-        for (int i = 1; i < allVersions.length; i++) {
+        if (ind<1 || ind> allVersions.length){
+            return;
+        }
+        for (int i = 0; i < allVersions.length; i++) {
             if (i!=ind-1){
                 newVersions[k]=allVersions[i];
                 k++;
             }
-            
         }
-        return creating(currentVersion,newVersions);
+        this.allVersions=newVersions;
     }
 
-    public PoemGit goBack(int ind){
-        if (ind < 0 || ind > allVersions.length){
-            return this;
+    public void goBack(int ind){
+        if (ind < 1 || ind > allVersions.length){
+            return;
         }
-        Version givenVersion = getVersion(ind);
-        Version[] newVersions = new Version[ind];
-        for (int i = 0; i < ind; i++) {
-            newVersions[i] = allVersions[i];
+        Version last = allVersions[ind-1];
+        currentVersion=last.getter();
+        Version[] newVersions = new Version[allVersions.length-ind];
+        for (int i = ind; i < allVersions.length; i++) {
+            newVersions[i-ind] = allVersions[i];
         }
-        return creating(givenVersion.getter(), newVersions);
+        allVersions=newVersions;
     }
 
     private static boolean contain (String[] ls, String s){
@@ -348,17 +340,15 @@ public class Test {
             if (choice == 1) {
                 System.out.println("Введите строку для добавления:");
                 String str = sc.nextLine();
-                git = git.addStr(str);
-                System.out.println("----- Результат после добавления строки -----");
-                System.out.println(git);
+                git.addStr(str);
+                System.out.println("----- Строка добавлена -----");
 
             } else if (choice == 2) {
                 System.out.println("Введите номер строки для удаления:");
                 int deleteInd = sc.nextInt();
                 sc.nextLine();
-                git = git.deleteStr(deleteInd);
-                System.out.println("----- Результат после удаления строки -----");
-                System.out.println(git);
+                git.deleteStr(deleteInd);
+                System.out.println("----- Строка удалена -----");
 
             } else if (choice == 3) {
                 System.out.println("Введите индекс для вставки строки:");
@@ -366,12 +356,12 @@ public class Test {
                 sc.nextLine();
                 System.out.println("Введите строку для вставки:");
                 String insLine = sc.nextLine();
-                git = git.insertStr(insertInd, insLine);
-                System.out.println("-----Результат-----");
+                git.insertStr(insertInd, insLine);
+                System.out.println("----- Строка вставлена -----");
                 System.out.println(git);
 
             } else if (choice == 4) {
-                git = git.saving();
+                git.saving();
                 System.out.println("----- Версия успешно сохранена -----");
 
             } else if (choice == 5) {
@@ -380,29 +370,32 @@ public class Test {
                 sc.nextLine();
                 Version newVersion = git.getVersion(ind);
                 System.out.println("Версия " + ind + ":");
-                for (String s : newVersion.getter())
+                for (String s : newVersion.getter()){
                     System.out.println(s);
+                }
 
             } else if (choice == 6) {
                 System.out.println("----- Текущая версия -----");
-                for (String s : git.getCurrentVersion())
+                for (String s : git.getCurrentVersion()){
                     System.out.println(s);
+                }
 
             } else if (choice == 7) {
                 System.out.println("----- Все сохраненные Вами версии -----");
                 Version[] all = git.getAllVersions();
                 for (int i = 0; i < all.length; i++) {
                     System.out.println("Версия " + (i + 1) + ":");
-                    for (String s : all[i].getter()) System.out.println(s);
+                    for (String s : all[i].getter()){
+                        System.out.println(s);
+                    }
                 }
 
             } else if (choice == 8) {
                 System.out.println("Введите индекс версии для отката:");
                 int back = sc.nextInt();
                 System.out.println();
-                git = git.goBack(back);
-                System.out.println("----- После отката к заданной версии -----");
-                System.out.println(git);
+                git.goBack(back);
+                System.out.println("----- Откат к заданной версии выполнен -----");
 
             } else if (choice == 9) {
                 System.out.println("Введите индекс версии для сравнения с текущей:");
@@ -410,8 +403,9 @@ public class Test {
                 sc.nextLine();
                 Version differentVersion = git.getVersion(diffIndex);
                 System.out.println("----- Различия в строках -----");
-                for (String s : PoemGit.difference(git.getVersion(0), differentVersion))
+                for (String s : PoemGit.difference(git.getVersion(0), differentVersion)){
                     System.out.println(s);
+                }
 
             } else if (choice == 10) {
                 System.out.println("Введите индекс версии для поиска общих строк с текущей:");
@@ -419,14 +413,15 @@ public class Test {
                 sc.nextLine();
                 Version common = git.getVersion(commonInd);
                 System.out.println("----- Общие строки -----");
-                for (String s : PoemGit.commonStr(git.getVersion(0), common))
+                for (String s : PoemGit.commonStr(git.getVersion(0), common)) {
                     System.out.println(s);
+                }
 
             } else if (choice == 11) {
                 System.out.println("Введите индекс версии для удаления:");
                 int deleteVer = sc.nextInt();
                 sc.nextLine();
-                git = git.deleteVersion(deleteVer);
+                git.deleteVersion(deleteVer);
                 System.out.println("----- Версия успешно удалена -----");
 
             } else if (choice == 12) {
@@ -503,9 +498,7 @@ public class Test {
   ```
 - **Output**:
   ```
-  ----- Результат после добавления строки -----
-  Зимнее утро - А.С.Пушкин
-  Мороз и солнце, день чудесный
+  ----- Строка добавлена -----
   ```
 - **Input**:
   ```
@@ -529,10 +522,7 @@ public class Test {
   ```
 - **Output**:
   ```
-  ----- Результат после добавления строки -----
-  Зимнее утро - А.С.Пушкин
-  Мороз и солнце, день чудесный
-  Ещё ты дремлешь, друг прелестный
+  ----- Строка доабвлена -----
   ```
 - **Input**:
   ```
@@ -548,9 +538,7 @@ public class Test {
   ```
 - **Output**:
   ```
-  ----- Результат после удаления строки -----
-  Зимнее утро - А.С.Пушкин
-  Ещё ты дремлешь, друг прелестный
+  ----- Строка удалена -----
   ```
 - **Input**:
   ```
@@ -574,10 +562,7 @@ public class Test {
   ```
 - **Output**:
   ```
-  -----Результат-----
-  Зимнее утро - А.С.Пушкин
-  Мороз и солнце
-  Ещё ты дремлешь, друг прелестный
+  ----- Строка вставлена -----
   ```
 - **Input**:
   ```
@@ -645,11 +630,7 @@ public class Test {
   ```
 - **Output**:
   ```
-  ----- После отката к заданной версии -----
-  Зимнее утро - А.С.Пушкин
-  Мороз и солнце
-  День чудесный
-  Ещё ты дремлешь, друг прелестный
+  ----- Откат к заданной версии выполнен -----
   ```
 - **Input**:
   ```
